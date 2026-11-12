@@ -1,0 +1,45 @@
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  chroma:
+    image: chromadb/chroma:latest
+    volumes: [chroma-data:/chroma/chroma]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/8000' || exit 1"]
+      interval: 10s
+      retries: 10
+
+  api:
+    build: .
+    env_file: .env
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: [app-data:/app/data]
+    depends_on:
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      retries: 10
+
+  agent-worker:
+    build: .
+    command: ["rq", "worker", "triage", "--url", "redis://redis:6379/0"]
+    env_file: .env
+    volumes:
+      - app-data:/app/data
+      - ./corpus:/app/corpus:ro
+    depends_on:
+      redis: {condition: service_healthy}
+      chroma: {condition: service_healthy}
+
+volumes:
+  redis-data:
+  chroma-data:
+  app-data:

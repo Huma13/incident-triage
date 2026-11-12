@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+pydantic>=2
+redis
+rq
+langgraph
+langchain
+langchain-community
+langchain-openai
+chromadb
+rank-bm25
+sentence-transformers
+prometheus-client
+opentelemetry-sdk
+opentelemetry-exporter-otlp
+pytest
+locust

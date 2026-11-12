@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "source": "manual",
+  "source_event_id": "demo-incident-0001",
+  "occurred_at": "2026-11-12T13:00:00Z",
+  "service": "postgresql",
+  "postgres_version": "17.6",
+  "environment": "local-test",
+  "alert": {
+    "name": "DiskUsageHigh",
+    "summary": "Disk usage on primary is increasing steadily.",
+    "labels": {"instance": "pg-primary-01", "role": "primary"},
+    "metrics": [
+      {"name": "disk_used_percent", "value": 88.2, "unit": "percent", "threshold": 85.0}
+    ]
+  },
+  "on_call_note": "Table and index sizes are not growing; cause unknown."
+}
