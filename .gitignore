@@ -1,9 +1,10 @@
 .env
-data/
 __pycache__/
 *.pyc
 .venv/
-node_modules/
+data/
+*.db
+*.sqlite
+chroma_db/
+.pytest_cache/
 .DS_Store
-corpus/postgresql_docs/*.html
-chroma-data/
