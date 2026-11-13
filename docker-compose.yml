@@ -19,7 +19,7 @@ services:
   api:
     build: .
     env_file: .env
-    ports: ["127.0.0.1:8000:8000"]
+    ports: ["127.0.0.1:8001:8000"]
     volumes: [app-data:/app/data]
     depends_on:
       redis: {condition: service_healthy}
@@ -32,6 +32,8 @@ services:
     build: .
     command: ["rq", "worker", "triage", "--url", "redis://redis:6379/0"]
     env_file: .env
+    environment:
+      USE_LLM_STUB: "true"
     volumes:
       - app-data:/app/data
       - ./corpus:/app/corpus:ro
@@ -39,7 +41,29 @@ services:
       redis: {condition: service_healthy}
       chroma: {condition: service_healthy}
 
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports: ["127.0.0.1:9091:9090"]
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      api: {condition: service_healthy}
+
+  grafana:
+    image: grafana/grafana:latest
+    ports: ["127.0.0.1:3001:3000"]
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
 volumes:
   redis-data:
   chroma-data:
   app-data:
+  prometheus-data:
+  grafana-data:
